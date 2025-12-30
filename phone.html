@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .ph {
+            width: 100%;
+            max-width: 940px;
+            padding: 20px;
+            background: #222;
+            border-radius: 10px;
+        }
+        .scr {
+            width: 100%;
+            height: 200px;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+            border: 1px solid #888;
+            padding: 5px;
+            border-radius: 10px;
+            background: #444;
+            color: white;
+        }
+        .btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        button {
+            padding: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            width: 300px;
+            border-radius: 10px;
+            border: none;
+            background: #555;
+            color: white;
+        }
+        .call{
+            background: #28a745;
+            width: 70px; 
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .call img{
+            width: 30px;
+            height: 30px;
+            filter: invert(1);
+        }
+        .cscr{
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            background: #222;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .copts {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .copts button {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="ph">
+        <input type="number" id="num" class="scr" maxlength="10">
+        <div class="btns">
+            <button onclick="add(1)">1</button>
+            <button onclick="add(2)">2</button>
+            <button onclick="add(3)">3</button>
+            <button onclick="add(4)">4</button>
+            <button onclick="add(5)">5</button>
+            <button onclick="add(6)">6</button>
+            <button onclick="add(7)">7</button>
+            <button onclick="add(8)">8</button>
+            <button onclick="add(9)">9</button>
+            <button onclick="clr()">
+                <img src="backspace.svg" style="height: 24px;width: 24px;">
+            </button>
+            <button onclick="add(0)">0</button>
+            <button>+</button>
+            <button class="call" onclick="dial()">
+                <img src="whitephone.svg">
+            </button>
+        </div>
+    </div>
+    <div class="cscr" id="cscr">
+        <h2>Calling...</h2>
+        <p id="cnum"></p>
+        <button onclick="end()">End Call</button>
+    </div>
+    <script>
+        function add(n) {
+            let s = document.getElementById("num");
+            if (s.value.length < 10) {
+                s.value += n;
+            }
+        }
+        
+        function clr() {
+            document.getElementById("num").value = "";
+        }
+        
+        function dial() {
+            let s = document.getElementById("num").value;
+            if (s.length === 10) {
+                document.getElementById("cnum").innerText = s;
+                document.getElementById("cscr").style.display = "block";
+            } else {
+                alert("Enter 10-digit number!");
+            }
+        }
+        
+        function end() {
+            document.getElementById("cscr").style.display = "none";
+        }
+    </script>
+</body>
+</html>
+
+

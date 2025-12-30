@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #3a8dff, #0b3d91);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            color: #fff;
+            border-radius: 25px;
+            padding: 40px 35px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .search {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search input {
+            border: 0; outline: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff; padding: 10px 25px; height: 60px;
+            border-radius: 30px; flex: 1;
+            margin-right: 16px; font-size: 18px;
+        }
+        .search input::placeholder { color: #eee; }
+
+        .search button {
+            border: 0; outline: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; transition: background 0.3s ease;
+        }
+        .search button:hover { background: rgba(255, 255, 255, 0.4); }
+        .search button img { width: 16px; }
+
+        .weather { display: none; }
+        .we-icon { width: 170px; margin-top: 30px; }
+        .weather h1 { font-size: 80px; font-weight: 500; }
+        .weather h2 { font-size: 45px; font-weight: 400; margin-top: -10px; }
+        
+        .details {
+            display: flex; align-items: center;
+            justify-content: space-between; padding: 0 20px;
+            margin-top: 50px;
+        }
+        .col { display: flex; align-items: center; text-align: left; }
+        .col img { width: 40px; margin-right: 10px; }
+        .humidity, .wind { font-size: 28px; margin-top: -6px; }
+
+        .watchlist-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 30px 35px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .watchlist-section h3 {
+            font-weight: 500; margin-bottom: 20px;
+            text-align: center; font-size: 24px;
+        }
+        .add-city-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        .add-city-form input {
+            border: 0; outline: 0; background: rgba(0, 0, 0, 0.2);
+            color: #fff; padding: 10px 20px; height: 50px;
+            border-radius: 15px; flex: 1; font-size: 16px;
+        }
+        .add-city-form button {
+            border: 0; outline: 0; background: #fff; color: #0b3d91;
+            border-radius: 15px; width: 80px; height: 50px;
+            font-weight: 500; cursor: pointer;
+        }
+
+        #watchlist-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .city-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px; border-radius: 15px;
+            text-align: center; cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .city-card:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+        }
+        .city-card h4 { font-size: 18px; font-weight: 500; }
+        .city-card p { font-size: 24px; font-weight: 600; margin: 5px 0;}
+        .city-card img { width: 40px; height: 40px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="search">
+                <input type="text" id="cityInput" placeholder="Enter a City Name">
+                <button id="searchBtn"><img src="search.png" alt="search"></button>
+            </div>
+            <div class="weather">
+                <img src="rain.png" class="we-icon">
+                <h1 class="temp">22°C</h1>
+                <h2 class="city">New York</h2>
+                <div class="details">
+                    <div class="col">
+                        <img src="humidity.png">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="wind.png">
+                        <div>
+                            <p class="wind">15 km/h</p>
+                            <p>Wind Speed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="watchlist-section">
+            <h3>My Watchlist</h3>
+            <div class="add-city-form">
+                <input type="text" id="add-city-input" placeholder="Add a city to your list">
+                <button id="add-city-btn">Add</button>
+            </div>
+            <div id="watchlist-cards"></div>
+        </div>
+    </div>
+
+    <script>
+        class Queue {
+            constructor(maxSize = 3) {
+                this.items = [];
+                this.maxSize = maxSize;
+            }
+            enqueue(element) {
+                this.items.push(element);
+                if (this.items.length > this.maxSize) {
+                    this.dequeue();
+                }
+            }
+            dequeue() {
+                if (this.isEmpty()) return null;
+                return this.items.shift();
+            }
+            getItems() {
+                return this.items;
+            }
+            isEmpty() {
+                return this.items.length === 0;
+            }
+            contains(element) {
+                return this.items.find(item => item.toLowerCase() === element.toLowerCase());
+            }
+        }
+        
+        const apikey = "1d9b28bb3f30e46f11ee34801f70ad1b";
+        
+        const cityInput = document.getElementById("cityInput");
+        const searchBtn = document.getElementById("searchBtn");
+        const weatherIcon = document.querySelector(".we-icon"); 
+        const weatherDisplay = document.querySelector(".weather");
+        
+        const addCityInput = document.getElementById("add-city-input");
+        const addCityBtn = document.getElementById("add-city-btn");
+        const watchlistCardsContainer = document.getElementById("watchlist-cards");
+
+        const cityWatchlistQueue = new Queue(3);
+
+        async function initialLoad() {
+            cityWatchlistQueue.enqueue("London");
+            cityWatchlistQueue.enqueue("Tokyo");
+            cityWatchlistQueue.enqueue("Paris");
+            renderWatchlist();
+            const cities = cityWatchlistQueue.getItems();
+            if (cities.length > 0) {
+                await displayDetailedWeather(cities[0]);
+            }
+        }
+        
+        async function renderWatchlist() {
+            watchlistCardsContainer.innerHTML = '';
+            const cities = cityWatchlistQueue.getItems();
+
+            for (const city of cities) {
+                const apiurl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apikey}`;
+                try {
+                    const response = await fetch(apiurl);
+                    if (!response.ok) continue;
+                    const data = await response.json();
+
+                    const card = document.createElement('div');
+                    card.className = 'city-card';
+                    card.onclick = () => displayDetailedWeather(city);
+
+                    const name = document.createElement('h4');
+                    name.textContent = data.name;
+
+                    const temp = document.createElement('p');
+                    temp.textContent = Math.round(data.main.temp) + "°";
+
+                    const icon = document.createElement('img');
+                    icon.src = getWeatherIconPath(data.weather[0].main);
+
+                    card.appendChild(name);
+                    card.appendChild(temp);
+                    card.appendChild(icon);
+                    watchlistCardsContainer.appendChild(card);
+                } catch (error) {
+                    console.error(`Could not fetch watchlist data for ${city}:`, error);
+                }
+            }
+        }
+        
+        function getWeatherIconPath(weatherMain) {
+             if(weatherMain == "Clouds") { return "clouds.png"; }
+             else if(weatherMain == "Clear") { return "clear.png"; }
+             else if(weatherMain == "Rain") { return "rain.png"; } 
+             else if(weatherMain == "Drizzle") { return "drizzle.png"; }
+             else if(weatherMain == "Mist") { return "mist.png"; }
+             return "clear.png";
+        }
+
+        async function displayDetailedWeather(city) {
+            if (!city) return;
+            const apiurl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apikey}`;
+            
+            try {
+                const response = await fetch(apiurl);
+                if (response.status == 404) {
+                    alert("City not found.");
+                    return false;
+                }
+                const data = await response.json();
+
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+                weatherIcon.src = getWeatherIconPath(data.weather[0].main);
+                
+                weatherDisplay.style.display = "block";
+                return true;
+                
+            } catch(error) {
+                console.error("Failed to fetch detailed weather data:", error);
+                return false;
+            }
+        }
+        
+        async function addCity() {
+            const newCity = addCityInput.value.trim();
+            if (!newCity) return;
+            
+            if (cityWatchlistQueue.contains(newCity)) {
+                alert(`${newCity} is already in your watchlist.`);
+                return;
+            }
+
+            const success = await displayDetailedWeather(newCity);
+            if (success) {
+                cityWatchlistQueue.enqueue(newCity);
+                await renderWatchlist();
+                addCityInput.value = '';
+            }
+        }
+
+        searchBtn.addEventListener("click", () => {
+            displayDetailedWeather(cityInput.value);
+        });
+
+        cityInput.addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                displayDetailedWeather(cityInput.value);
+            }
+        });
+        
+        addCityBtn.addEventListener("click", addCity);
+
+        addCityInput.addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                addCity();
+            }
+        });
+
+        initialLoad();
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: black;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .cl {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 10px;
+        }
+        .cl div {
+            background: white;
+            color: black;
+            width: 250px;
+            padding: 15px;
+            border-radius: 5px;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+        .cl div:hover {
+            box-shadow: 0 0 10px white;
+        }
+        #a {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: black;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        #a:hover{
+            box-shadow: 0 0 10px white;
+        }
+        .m {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px dotted black;
+            width: 300px;
+            z-index: 100;
+        }
+        .m input {
+            width: 275px;
+            padding: 8px;
+            margin: 5px 0px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+        }
+        .m button {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #s {
+            background: black;
+            color: white;
+        }
+        #c {
+            background: white;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contacts</h1>
+    <div class="cl" id="cl"></div>
+    <button id="a" onclick="om()">+</button>
+    <div class="m" id="m">
+        <h2>Add Contact</h2>
+        <input type="text" id="n" placeholder="Name">
+        <input type="number" id="num" placeholder="Phone">
+        <div style="text-align: right;">
+            <button id="c" onclick="cm()">Cancel</button>
+            <button id="s" onclick="ac()">Save</button>
+        </div>
+    </div>
+    <script>
+        class Queue {
+            constructor(maxSize = 7) {
+                this.items = [];
+                this.maxSize = maxSize;
+            }
+            enqueue(element) {
+                this.items.push(element);
+                if (this.items.length > this.maxSize) {
+                    this.dequeue();
+                }
+            }
+            dequeue() {
+                if (this.isEmpty()) {
+                    return null;
+                }
+                return this.items.shift();
+            }
+            getItems() {
+                return this.items;
+            }
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+        const contactQueue = new Queue(7);
+        const contactListDiv = document.getElementById("cl");
+        function om() {
+            document.getElementById("m").style.display = "block";
+        }
+        function cm() {
+            document.getElementById("m").style.display = "none";
+        }
+        function renderContacts() {
+            contactListDiv.innerHTML = '';
+            const contacts = contactQueue.getItems();
+            contacts.forEach(contactData => {
+                const contact = document.createElement("div");
+                contact.innerHTML = `<h2>${contactData.name}</h2><p>+91 ${contactData.number}</p>`;
+                contactListDiv.appendChild(contact);
+            });
+        }
+        function ac() {
+            var n = document.getElementById("n").value.trim();
+            var num = document.getElementById("num").value.trim();
+            var regex = /^[6789]\d{9}$/;
+            if (!n || !num) {
+                alert("Please fill both fields");
+                return;
+            }
+            if (!regex.test(num)) {
+                alert("Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.");
+                return;
+            }
+            contactQueue.enqueue({ name: n, number: num });
+            renderContacts();
+            cm();
+            document.getElementById("n").value = "";
+            document.getElementById("num").value = "";
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const initialContacts=[
+                { name: "Vansh", number: "6352681807"},
+                { name: "Khanjan Nariya", number: "7984636146"},
+                { name: "E Raju", number: "9169526814"},
+                { name: "Jenil", number: "9974154567"},
+                { name: "Aryan", number: "9904330185"},
+                { name: "Drew Lakhani", number: "6352751830"},
+                { name: "Shivam", number: "9904330185"}
+            ];
+            initialContacts.forEach(contact => {
+                contactQueue.enqueue(contact);
+            });
+            renderContacts();
+        });
+    </script>
+</body>
+</html>

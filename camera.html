@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera</title>
+    <style>
+        :root {
+            --shutter-size: 70px;
+            --stack-thumb-size: 80px;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        #camera-stream {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        .camera-ui-overlay {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 40px;
+            box-sizing: border-box;
+        }
+
+        #shutter-btn {
+            width: var(--shutter-size);
+            height: var(--shutter-size);
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 4px solid rgba(0,0,0,0.3);
+            transition: transform 0.1s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #shutter-btn:active {
+            transform: scale(0.9);
+        }
+
+        #shutter-btn::before {
+            content: '';
+            width: calc(var(--shutter-size) * 0.85);
+            height: calc(var(--shutter-size) * 0.85);
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background: #fff;
+        }
+
+        #photo-stack-container {
+            position: absolute;
+            bottom: 40px;
+            left: 30px;
+            width: var(--stack-thumb-size);
+            height: var(--stack-thumb-size);
+            z-index: 20;
+        }
+        
+        .stack-thumbnail {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            position: absolute;
+            object-fit: cover;
+            transition: transform 0.3s ease-out;
+        }
+
+        /* Screen flash effect */
+        .flash-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            z-index: 99;
+            pointer-events: none;
+            animation: screenFlash 0.4s ease-out;
+        }
+        
+        @keyframes screenFlash {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="camera-container">
+        <video id="camera-stream" autoplay playsinline></video>
+        <canvas id="hidden-canvas" style="display: none;"></canvas>
+
+        <div class="camera-ui-overlay">
+            <div id="photo-stack-container">
+            </div>
+            <div id="shutter-btn"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoElement = document.getElementById("camera-stream");
+            const shutterBtn = document.getElementById("shutter-btn");
+            const canvas = document.getElementById("hidden-canvas");
+            const photoStackContainer = document.getElementById("photo-stack-container");
+
+            class Stack {
+                constructor(maxSize = 5) {
+                    this.items = [];
+                    this.maxSize = maxSize;
+                }
+                push(element) {
+                    this.items.push(element);
+                    if (this.items.length > this.maxSize) {
+                        this.items.shift();
+                    }
+                }
+                getItems() {
+                    return this.items;
+                }
+            }
+
+            const photoStack = new Stack(5);
+
+            async function startCamera(){
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: {facingMode:'environment'}
+                    });
+                    videoElement.srcObject = stream;
+                } catch (err) {
+                    console.error("Error accessing camera: ", err);
+                    alert("Could not access the camera. Please ensure you have given permission.");
+                }
+            }
+
+            function takePicture(){
+                const flash = document.createElement('div');
+                flash.className = 'flash-effect';
+                document.body.appendChild(flash);
+                setTimeout(() => flash.remove(), 400);
+
+                const context = canvas.getContext('2d');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                const imageDataUrl = canvas.toDataURL('image/jpeg');
+                photoStack.push(imageDataUrl);
+
+                renderPhotoStack();
+            }
+
+            function renderPhotoStack() {
+                photoStackContainer.innerHTML = '';
+                const photos = photoStack.getItems();
+                
+                photos.forEach((photoData, index)=>{
+                    const img = document.createElement('img');
+                    img.src = photoData;
+                    img.className = 'stack-thumbnail';
+                    
+                    const offset = (photos.length - 1 - index) * 5;
+                    img.style.transform = `translate(${offset}px, -${offset}px) rotate(${offset/2}deg)`;
+                    img.style.zIndex = index;
+                    
+                    photoStackContainer.appendChild(img);
+                });
+            }
+
+            shutterBtn.addEventListener('click', takePicture);
+
+            startCamera();
+        });
+    </script>
+</body>
+</html>
