@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
+            font-family: Arial, Helvetica,sans-serif;
+            color: #333;
+        }
+
+        #st {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sl,.sr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tm {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        #st img {
+            width: 18px;
+            height: 18px;
+        }
+
+        #ap {
+            width: 400px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding-left: 20px;
+            text-align: center;
+        }
+
+        .a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+            text-decoration: none;
+            color: #333;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        .a:hover {
+            transform: translateY(-5px);
+        }
+
+        .a img {
+            width: 50px;
+            height: 50px;
+            transition: 0.3s;
+        }
+
+        .a:hover img {
+            transform: scale(1.1);
+        }
+
+        .a p {
+            margin: 5px 0 0;
+            font-size: 12px;
+        }
+
+        #dk {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px;
+            padding: 16px 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .di {
+            width: 50px;
+            height: 50px;
+            transition: 0.3s;
+        }
+
+        .di:hover {
+            transform: scale(1.1);
+        }
+
+        .di img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="st">
+        <div class="sl"><span class="tm"></span></div>
+        <div class="sr">
+            <img src="network.svg">
+            <img src="vpn.svg">
+            <img src="battery.svg">
+        </div>
+    </div>
+
+    <div id="ap">
+        <a href="https://www.instagram.com" target="_blank" class="a">
+            <img src="instagram.svg" alt="I">
+            <p>Instagram</p>
+        </a>
+        <a href="weather.html" class="a">
+            <img src="weather.svg" alt="W">
+            <p>Weather</p>
+        </a>
+        <a href="https://www.google.com" target="_blank" class="a">
+            <img src="google.svg" alt="G">
+            <p>Google</p>
+        </a>
+        <a href="calculator.html" class="a">
+            <img src="calculator.svg" alt="C">
+            <p>Calculator</p>
+        </a>
+        <a href="https://www.youtube.com/" target="_blank" class="a">
+            <img src="youtube.svg" alt="Y">
+            <p>youtube</p>
+        </a>
+        <a href="https://www.facebook.com/" class="a">
+            <img src="facebook.svg" alt="F">
+            <p>Facebook</p>
+        </a>
+        <a href="https://x.com/" class="a">
+            <img src="twitter.svg" alt="X">
+            <p>X</p>
+        </a>
+        <a href="https://www.linkedin.com/" class="a">
+            <img src="linkedin.svg" alt="L">
+            <p>Linkedin</p>
+        </a>
+        <a href="clock.html" class="a">
+            <img src="clock.svg" alt="C">
+            <p>Clock</p>
+        </a>
+    </div>
+    
+    <div id="dk">
+        <a href="phone.html" class="di"><img src="whitephone.svg"></a>
+        <a href="contacts.html" class="di"><img src="contacts.svg"></a>
+        <a href="messages.html" class="di"><img src="messages.svg"></a>
+        <a href="album.html" class="di"><img src="album.svg"></a>
+        <a href="camera.html" class="di"><img src="camera.svg"></a>
+    </div>
+    <script>
+        function updT() {
+            var t = document.querySelector('.tm');
+            var d = new Date();
+            var h = d.getHours();
+            var m = d.getMinutes().toString().padStart(2, '0');
+            t.innerHTML = h + ':' + m;
+        }
+        updT();
+    </script>
+</body>
+
+</html>

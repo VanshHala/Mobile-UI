@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Clock</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #000000;
+            --surface-color: #000000;
+            --on-surface-color: #ffffff;
+            --on-surface-variant-color: #a0a0a0;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--on-surface-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .alarm-app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--surface-color);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .current-time {
+            font-size: 80px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--on-surface-color);
+        }
+
+        .current-date {
+            font-size: 18px;
+            color: var(--on-surface-variant-color);
+        }
+
+        .add-alarm-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 500;
+            border: 1px solid var(--on-surface-color);
+            border-radius: 12px;
+            background-color: var(--on-surface-color);
+            color: var(--bg-color);
+            cursor: pointer;
+            margin: 24px 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .add-alarm-btn:hover {
+            background-color: transparent;
+            color: var(--on-surface-color);
+        }
+
+        #alarm-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        #alarm-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .alarm-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+
+        .alarm-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .alarm-time-display {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .alarm-time {
+            font-size: 36px;
+            font-weight: 500;
+        }
+
+        .alarm-ampm {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--on-surface-variant-color);
+        }
+
+        .alarm-label {
+            font-size: 14px;
+            color: var(--on-surface-variant-color);
+            font-style: italic;
+        }
+
+        .alarm-controls button {
+            background: none;
+            border: none;
+            color: var(--on-surface-variant-color);
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+            margin-left: 8px;
+            transition: color 0.3s;
+        }
+
+        .alarm-controls button:hover {
+            color: var(--on-surface-color);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            opacity: 1; visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #111;
+            border: 1px solid var(--border-color);
+            padding: 32px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+        }
+
+        .modal-content h2 { margin-top: 0; }
+
+        .modal-time-setter {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 24px 0;
+            align-items: center;
+        }
+
+        .modal-time-setter input {
+            width: 80px;
+            font-size: 48px;
+            text-align: center;
+            border: none;
+            background-color: #222;
+            color: var(--on-surface-color);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        #modal-ampm-btn {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 10px;
+            background-color: #222;
+            border: none;
+            color: var(--on-surface-color);
+            cursor: pointer;
+        }
+
+        #modal-label {
+            width: calc(100% - 24px);
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background-color: #222;
+            color: var(--on-surface-color);
+            margin-top: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .modal-actions button {
+            flex-grow: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #modal-save-btn {
+            background-color: var(--on-surface-color);
+            color: var(--bg-color);
+        }
+
+        #modal-cancel-btn {
+            background-color: transparent;
+            color: var(--on-surface-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="alarm-app-container">
+        <header class="app-header">
+            <div class="current-time" id="current-time">12:00 PM</div>
+            <div class="current-date" id="current-date">Loading...</div>
+        </header>
+
+        <button class="add-alarm-btn" id="add-alarm-btn">Add New Alarm</button>
+        <ul id="alarm-list"></ul>
+    </div>
+
+    <div class="modal-overlay" id="alarm-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Set New Alarm</h2>
+            <div class="modal-time-setter">
+                <input type="number" id="modal-hour" min="1" max="12" placeholder="HH">
+                <span>:</span>
+                <input type="number" id="modal-minute" min="0" max="59" placeholder="MM">
+                <button id="modal-ampm-btn">AM</button>
+            </div>
+            <input type="text" id="modal-label" placeholder="Alarm Label (optional)">
+            <div class="modal-actions">
+                <button id="modal-cancel-btn">Cancel</button>
+                <button id="modal-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+            push(element) {
+                this.items.push(element);
+            }
+            pop() {
+                if (this.isEmpty()) return null;
+                return this.items.pop();
+            }
+            getItems() {
+                return this.items;
+            }
+            setItems(items) {
+                this.items = items;
+            }
+            isEmpty() {
+                return this.items.length === 0;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentTimeEl = document.getElementById('current-time');
+            const currentDateEl = document.getElementById('current-date');
+            const addAlarmBtn = document.getElementById('add-alarm-btn');
+            const alarmListEl = document.getElementById('alarm-list');
+            const modal = document.getElementById('alarm-modal');
+            const modalHourInput = document.getElementById('modal-hour');
+            const modalMinuteInput = document.getElementById('modal-minute');
+            const modalAmPmBtn = document.getElementById('modal-ampm-btn');
+            const modalLabelInput = document.getElementById('modal-label');
+            const saveBtn = document.getElementById('modal-save-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+
+            const alarmStack = new Stack();
+            let lastDisplayedTime = "";
+
+            const formatTwoDigits = (num) => String(num).padStart(2, '0');
+
+            function saveAlarms() {
+                localStorage.setItem('myBlackWhiteAlarms', JSON.stringify(alarmStack.getItems()));
+            }
+
+            function loadAlarms() {
+                const storedAlarms = localStorage.getItem('myBlackWhiteAlarms');
+                const alarmsArray = storedAlarms ? JSON.parse(storedAlarms) : [];
+                alarmStack.setItems(alarmsArray);
+            }
+
+            function updateClock() {
+                const now = new Date();
+                const formattedTime = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                if (formattedTime !== lastDisplayedTime) {
+                    currentTimeEl.textContent = formattedTime;
+                    lastDisplayedTime = formattedTime;
+                }
+
+                currentDateEl.textContent = now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            function renderAlarms() {
+                alarmListEl.innerHTML = '';
+                const alarmsToRender = [...alarmStack.getItems()].reverse();
+
+                alarmsToRender.forEach(alarm => {
+                    const li = document.createElement('li');
+                    li.className = 'alarm-item';
+                    li.dataset.id = alarm.id;
+
+                    const details = document.createElement('div');
+                    details.className = 'alarm-details';
+
+                    const display = document.createElement('div');
+                    display.className = 'alarm-time-display';
+
+                    const time = document.createElement('span');
+                    time.className = 'alarm-time';
+                    const hour12 = alarm.hour % 12 || 12;
+                    time.textContent = `${formatTwoDigits(hour12)}:${formatTwoDigits(alarm.minute)}`;
+
+                    const ampm = document.createElement('span');
+                    ampm.className = 'alarm-ampm';
+                    ampm.textContent = alarm.hour >= 12 ? 'PM' : 'AM';
+
+                    display.appendChild(time);
+                    display.appendChild(ampm);
+
+                    const label = document.createElement('div');
+                    label.className = 'alarm-label';
+                    label.textContent = alarm.label || 'Alarm';
+
+                    details.appendChild(display);
+                    details.appendChild(label);
+
+                    const controls = document.createElement('div');
+                    controls.className = 'alarm-controls';
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = '&#128465;';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteAlarm(alarm.id);
+                    };
+
+                    controls.appendChild(deleteBtn);
+                    li.appendChild(details);
+                    li.appendChild(controls);
+                    alarmListEl.appendChild(li);
+                });
+            }
+
+            modalAmPmBtn.addEventListener('click', () => {
+                modalAmPmBtn.textContent = modalAmPmBtn.textContent === 'AM' ? 'PM' : 'AM';
+            });
+
+            function openModal() {
+                modalHourInput.value = '';
+                modalMinuteInput.value = '';
+                modalLabelInput.value = '';
+                modalAmPmBtn.textContent = 'AM';
+                modal.classList.add('active');
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+            }
+
+            function saveAlarm() {
+                let hour = parseInt(modalHourInput.value);
+                const minute = parseInt(modalMinuteInput.value);
+                const label = modalLabelInput.value.trim();
+                const isPm = modalAmPmBtn.textContent === 'PM';
+
+                if (isNaN(hour) || isNaN(minute) || hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+                    alert('Please enter a valid time.');
+                    return;
+                }
+
+                if (isPm && hour < 12) hour += 12;
+                if (!isPm && hour === 12) hour = 0;
+
+                const newAlarm = { id: Date.now().toString(), hour, minute, label };
+                alarmStack.push(newAlarm);
+                saveAlarms();
+                renderAlarms();
+                closeModal();
+            }
+
+            function deleteAlarm(id) {
+                let currentAlarms = alarmStack.getItems();
+                let updatedAlarms = currentAlarms.filter(alarm => alarm.id !== id);
+                alarmStack.setItems(updatedAlarms);
+                saveAlarms();
+                renderAlarms();
+            }
+
+            addAlarmBtn.addEventListener('click', openModal);
+            cancelBtn.addEventListener('click', closeModal);
+            saveBtn.addEventListener('click', saveAlarm);
+
+            loadAlarms();
+            renderAlarms();
+            setInterval(updateClock, 1000);
+            updateClock();
+        });
+    </script>
+</body>
+</html>
+ 

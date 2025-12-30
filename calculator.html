@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator with History</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+
+        :root {
+            --bg-color: #1a1a1a;
+            --display-bg: #222;
+            --btn-bg: rgba(255, 255, 255, 0.1);
+            --btn-hover-bg: rgba(255, 255, 255, 0.2);
+            --operator-bg: #ff9500;
+            --operator-hover-bg: #ffb84d;
+            --system-bg: #505050;
+            --system-hover-bg: #777;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .history-panel {
+            background: #1c1c1c;
+            width: 350px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+            transform: translateX(-100%);
+            transition: transform 0.4s ease-in-out;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            z-index: 100;
+        }
+        
+        .history-panel.open {
+            transform: translateX(0);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0;
+            font-weight: 500;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        .history-header h3 { margin: 0; }
+        .history-header button {
+            background: none; border: none;
+            color: #aaa; font-size: 24px;
+            cursor: pointer;
+        }
+
+        #history-list {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            color: #aaa;
+        }
+        
+        #history-list::-webkit-scrollbar { width: 5px; }
+        #history-list::-webkit-scrollbar-track { background: #1a1a1a; }
+        #history-list::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+
+        #history-list li {
+            padding: 15px 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+        #history-list li:hover { background: #2a2a2a; }
+        #history-list .expr { font-size: 1em; color: #888; }
+        #history-list .res { font-size: 1.5em; color: #fff; }
+
+        #clear-history-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .calculator {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            transition: transform 0.4s ease-in-out;
+        }
+        
+        .calculator.history-open {
+            transform: translateX(350px);
+        }
+
+        .display-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #history-toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--btn-bg);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #d {
+            width: 100%;
+            font-size: 64px;
+            text-align: right;
+            background: transparent;
+            color: #fff;
+            border: none;
+            outline: none;
+            padding: 10px;
+            font-weight: 300;
+        }
+
+        .btns {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .btns button {
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            background: var(--btn-bg);
+            color: #fff;
+            transition: 0.2s;
+            height: 80px;
+            border-radius: 40px;
+        }
+
+        .btns button:hover {
+            background: var(--btn-hover-bg);
+        }
+        .btns button.op {
+            background: var(--operator-bg);
+            font-size: 36px;
+        }
+        .btns button.op:hover { background: var(--operator-hover-bg); }
+        .btns button.system {
+            background: var(--system-bg);
+            color: #fff;
+        }
+         .btns button.system:hover { background: var(--system-hover-bg); }
+
+        .btns button.eq {
+            grid-column: span 2;
+            background: var(--operator-bg);
+        }
+         .btns button.eq:hover { background: var(--operator-hover-bg); }
+    </style>
+</head>
+<body>
+    <div class="history-panel" id="history-panel">
+        <div class="history-header">
+            <h3>History</h3>
+            <button id="history-close-btn">×</button>
+        </div>
+        <ul id="history-list"></ul>
+        <button id="clear-history-btn" onclick="clearHistory()">Clear History</button>
+    </div>
+
+    <div class="calculator" id="calculator-main">
+        <div class="display-container">
+            <button id="history-toggle-btn">☰</button>
+            <input type="text" id="d" disabled>
+        </div>
+        <div class="btns">
+            <button class="system" onclick="clr()">C</button>
+            <button class="system" onclick="add('(')">(</button>
+            <button class="system" onclick="add(')')">)</button>
+            <button class="op" onclick="add('/')">/</button>
+            
+            <button onclick="add('7')">7</button>
+            <button onclick="add('8')">8</button>
+            <button onclick="add('9')">9</button>
+            <button class="op" onclick="add('*')">×</button>
+            
+            <button onclick="add('4')">4</button>
+            <button onclick="add('5')">5</button>
+            <button onclick="add('6')">6</button>
+            <button class="op" onclick="add('-')">-</button>
+            
+            <button onclick="add('1')">1</button>
+            <button onclick="add('2')">2</button>
+            <button onclick="add('3')">3</button>
+            <button class="op" onclick="add('+')">+</button>
+            
+            <button onclick="add('0')">0</button>
+            <button onclick="add('.')">.</button>
+            <button class="eq" onclick="calc()">=</button>
+        </div>
+    </div>
+
+    <script>
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+            push(element) {
+                this.items.push(element);
+            }
+            pop() {
+                if (this.items.length == 0) return null;
+                return this.items.pop();
+            }
+            getItems() {
+                return this.items;
+            }
+            clear() {
+                this.items = [];
+            }
+        }
+
+        const historyStack = new Stack();
+        const display = document.getElementById('d');
+        const historyList = document.getElementById('history-list');
+        const historyPanel = document.getElementById('history-panel');
+        const calculatorMain = document.getElementById('calculator-main');
+        const historyToggleBtn = document.getElementById('history-toggle-btn');
+        const historyCloseBtn = document.getElementById('history-close-btn');
+
+        function add(v) {
+            display.value += v;
+        }
+
+        function clr() {
+            display.value = '';
+        }
+
+        function calc() {
+            let expression = display.value.replace('×', '*');
+            try {
+                let result = Function('"use strict";return (' + expression + ')')();
+                if (isNaN(result) || !isFinite(result)) throw new Error("Invalid calculation");
+                historyStack.push({ expression: display.value, result: result });
+                renderHistory();
+                display.value = result;
+            } catch (e) {
+                display.value = 'Error';
+            }
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            const items = historyStack.getItems();
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="expr">${item.expression} =</span>
+                    <span class="res">${item.result}</span>
+                `;
+                li.addEventListener('click', () => {
+                    display.value = item.expression;
+                    toggleHistoryPanel(false);
+                });
+                historyList.appendChild(li);
+            }
+        }
+
+        function clearHistory() {
+            historyStack.clear();
+            renderHistory();
+        }
+
+        function toggleHistoryPanel(open) {
+            if (open) {
+                historyPanel.classList.add('open');
+                calculatorMain.classList.add('history-open');
+            } else {
+                historyPanel.classList.remove('open');
+                calculatorMain.classList.remove('history-open');
+            }
+        }
+
+        historyToggleBtn.addEventListener('click', () => toggleHistoryPanel(true));
+        historyCloseBtn.addEventListener('click', () => toggleHistoryPanel(false));
+    </script>
+</body>
+</html>

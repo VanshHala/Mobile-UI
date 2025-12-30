@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            background: black;
+            color: white;
+            border: 1px solid white;
+            padding: 10px;
+        }
+        button {
+            background: white;
+            color: black;
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: gray;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .deleted {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .completed::before {
+            content: '✅ ';
+        }
+    </style>
+</head>
+<body>
+    <h1>Notes</h1>
+    <textarea id="ni" placeholder="Write your note here..."></textarea>
+    <br>
+    <button onclick="aN()">Add Note</button>
+    <ul id="nl"></ul>
+    <script>
+        function aN() {
+            let ni = document.getElementById('ni');
+            let nl = document.getElementById('nl');
+            if (ni.value.trim()) {
+                let l = document.createElement('li');
+                l.innerHTML = `<span>${ni.value}</span> 
+                    <button onclick="eN(this)">Edit</button> 
+                    <button onclick="dN(this)">Delete</button>`;
+                nl.appendChild(l);
+                ni.value = '';
+            }
+        }
+        function eN(b) {
+            let l = b.parentElement;
+            let n = prompt('Edit your note:', l.firstChild.textContent);
+            if (n !== null) {
+                l.firstChild.textContent = n;
+            }
+        }
+        function dN(b) {
+            let l = b.parentElement;
+            l.classList.toggle('deleted');
+            l.classList.toggle('completed');
+        }
+    </script>
+</body>
+</html>

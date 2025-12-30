@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile UI</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            background: url('wallpaper.jpg') center/cover;
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        #status-bar img {
+            width: 20px;
+        }
+        #apps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            gap: 20px;
+        }
+        .app-icon {
+            width: 60px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .app-icon:hover {
+            transform: scale(1.2);
+        }
+        #dock {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        #dock img {
+            width: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #dock img:hover {
+            transform: scale(1.2);
+        }
+        .app-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            padding-top: 50px;
+        }
+        #camera-screen video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="status-bar">
+        <img src="network.svg">
+        <img src="vpn.svg">
+        <img src="clock.svg">
+        <img src="battery.svg">
+    </div>
+    <div id="apps">
+        <img src="instagram.svg" class="app-icon" id="instagram">
+    </div>
+    <div id="dock">
+        <img src="mobile.svg" id="phone">
+        <img src="contacts.svg" id="contacts">
+        <img src="messages.svg" id="messages">
+        <img src="album.svg" id="album">
+        <img src="camera.svg" id="cameraic">
+    </div>
+    <div id="phone-screen" class="app-screen">Phone Dialer<br><br><input type="text" placeholder="Enter number"><br><button>Call</button></div>
+    <div id="contacts-screen" class="app-screen">Contacts<br><br><p>John Doe</p><p>Jane Doe</p></div>
+    <div id="messages-screen" class="app-screen">Messages<br><br><p>Chat feature coming soon...</p></div>
+    <div id="album-screen" class="app-screen">Gallery<br><br><p>No images yet.</p></div>
+    <div id="camera-screen" class="app-screen"><video id="camera-feed" autoplay></video></div>
+    <script>
+        function showApp(appId) {
+            document.querySelectorAll(".app-screen").forEach(app => app.style.display = "none");
+            document.getElementById(appId).style.display = "block";
+        }
+        document.getElementById("phone").addEventListener("click", function() {
+            showApp("phone-screen");
+        });
+        document.getElementById("contacts").addEventListener("click", function() {
+            showApp("contacts-screen");
+        });
+        document.getElementById("messages").addEventListener("click", function() {
+            showApp("messages-screen");
+        });
+        document.getElementById("album").addEventListener("click", function() {
+            showApp("album-screen");
+        });
+        document.getElementById("cameraic").addEventListener("click", function() {
+            showApp("camera-screen");
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    document.getElementById("camera-feed").srcObject = stream;
+                })
+                .catch(err => console.log("Camera access denied"));
+        });
+    </script>
+</body>
+</html>
